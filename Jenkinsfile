@@ -41,15 +41,10 @@ pipeline {
     stage('Kubernetes Deployment - DEV') {
       steps {
         withKubeConfig([credentialsId: 'kubeconfig']) {
-          // Вариант 1: через sed (как у тебя)
-          sh "sed -i 's#replace#${IMAGE}:${TAG}#g' k8s_deployment_service.yaml"
+          sh "sed -i 's#replace#dosyaas/numeric-:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
           sh 'kubectl apply -f k8s_deployment_service.yaml'
-          // Вариант 2 (альтернатива, без sed):
-          // sh 'kubectl set image deploy/numeric-app numeric-app=${IMAGE}:${TAG} -n default --record'
-          sh 'kubectl rollout status deploy/numeric-app -n default'
         }
       }
     }
-
   }
 }

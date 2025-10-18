@@ -1,24 +1,33 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Build Artifact') {
-      steps {
-        sh 'mvn -B clean package -DskipTests=true'
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-      }
-    }
+    stages {
 
-    stage('Unit Tests - JUnit and Jacoco') {
-      steps {
-        sh 'mvn -B test'
-      }
-      post {
-        always {
-          junit 'target/surefire-reports/*.xml'
-          jacoco execPattern: 'target/jacoco.exec'
+        stage('Build Artifact - Maven') {
+            steps {
+                sh "mvn clean package -DskipTests=true"
+                archive 'target/*.jar'
+            }
         }
-      }
+
+        stage('Unit Tests - JUnit and Jacoco') {
+            steps {
+                sh "mvn test"
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                    jacoco execPattern: 'target/jacoco.exec'
+                }
+            }
+        }
+
+        stage('Docker Build and Push') {
+            steps {
+                sh 'printenv'
+                sh 'docker build -t eldos.sailaukhanov@gmail.com/numeric-app:"$GIT_COMMIT" .'
+                sh 'docker push eldos.sailaukhanov@gmail.com/numeric-app:"$GIT_COMMIT"'
+            }
+        }
     }
-  }
 }

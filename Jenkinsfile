@@ -3,11 +3,10 @@ pipeline {
 
   environment {
     IMAGE = 'dosyaas/numeric-app'
-    TAG   = "${GIT_COMMIT}"   // один источник истины
+    TAG   = "${GIT_COMMIT}"
   }
 
   stages {
-
     stage('Build Artifact - Maven') {
       steps {
         sh 'mvn -B clean package -DskipTests=true'
@@ -39,24 +38,27 @@ pipeline {
     stage('Kubernetes Deployment - DEV') {
       steps {
         withKubeConfig(credentialsId: 'kubeconfig') {
-          // 1) Подставляем образ в манифест
           sh 'cp k8s_deployment_service.yaml k8s_deployment_service.rendered.yaml'
           sh 'sed -i "s#IMAGE_PLACEHOLDER#${IMAGE}:${TAG}#g" k8s_deployment_service.rendered.yaml'
 
-          // 2) Применяем и ждём раскатку
+          // применяем, ждём раскатку и только тут работаем с kubectl
           sh '''
+            set -e
             kubectl apply -f k8s_deployment_service.rendered.yaml
-            APP_DEPLOY=$(kubectl get deploy -o name | grep -m1 numeric)
-            kubectl rollout status "$APP_DEPLOY" --timeout=120s
+            # подберите -n <namespace> если не default
+            APP_DEPLOY=$(kubectl get deploy -l app=devsecops -o name | head -n1)
+            echo "APP_DEPLOY=${APP_DEPLOY}"
+            kubectl rollout status "$APP_DEPLOY" --timeout=180s
           '''
         }
       }
       post {
         failure {
-          script {
+          // rollback тоже ДОЛЖЕН быть под kubeconfig
+          withKubeConfig(credentialsId: 'kubeconfig') {
             sh '''
               set -e
-              APP_DEPLOY=$(kubectl get deploy -o name | grep -m1 numeric || true)
+              APP_DEPLOY=$(kubectl get deploy -l app=devsecops -o name | head -n1 || true)
               if [ -n "$APP_DEPLOY" ]; then
                 echo "Rollout failed. Trying to undo..."
                 kubectl rollout undo "$APP_DEPLOY" || true

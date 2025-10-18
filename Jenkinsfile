@@ -11,18 +11,16 @@ pipeline {
     }
 
     stage('Unit Tests - JUnit & Coverage') {
-  steps {
-    sh 'mvn -B test'
-  }
-  post {
-    always {
-      junit 'target/surefire-reports/*.xml'
-      publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
-                      failNoReports: true
-      // при желании пороги качества:
-      // publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
-      //   globalThresholds: [[thresholdTarget: 'Line', unstableThreshold: '60', unhealthyThreshold: '50']]
-
+      steps {
+        sh 'mvn -B test'
+      }
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+          publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
+                          failNoReports: true
+          // publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
+          //   globalThresholds: [[thresholdTarget: 'Line', unstableThreshold: '60', unhealthyThreshold: '50']]
         }
       }
     }
@@ -35,13 +33,16 @@ pipeline {
           sh 'docker push dosyaas/numeric-app:"$GIT_COMMIT"'
         }
       }
-stage('Kubernetes Deployment - DEV') {
-    steps {
+    }
+
+    stage('Kubernetes Deployment - DEV') {
+      steps {
         withKubeConfig([credentialsId: 'kubeconfig']) {
-            sh "sed -i 's#replace#dosyaas/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
-            sh "kubectl apply -f k8s_deployment_service.yaml"
-        }    
-}
+          sh "sed -i 's#replace#dosyaas/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
+          sh 'kubectl apply -f k8s_deployment_service.yaml'
+        }
+      }
+    }
 
   } // end stages
 }   // end pipeline

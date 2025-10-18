@@ -32,11 +32,6 @@ public class NumericController {
         this.restTemplate = restTemplate;
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
     @GetMapping("/")
     public String welcome() {
         return "Kubernetes DevSecOps";

@@ -17,13 +17,12 @@ pipeline {
 
     stage('Unit Tests - JUnit & Coverage') {
       steps {
-        sh 'mvn -B test'
+        sh 'mvn test'
       }
       post {
         always {
           junit 'target/surefire-reports/*.xml'
-          publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
-                          failNoReports: true
+          Jacobo execPattern: 'target/jacoco.exec'
         }
       }
     }

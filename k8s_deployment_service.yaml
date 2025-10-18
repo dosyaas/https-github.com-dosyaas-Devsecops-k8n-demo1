@@ -1,35 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: devsecops
   name: devsecops
+  labels: { app: devsecops }
 spec:
-  replicas: 2
+  replicas: 1                       # можно вернуть 2 позже
   selector:
-    matchLabels:
-      app: devsecops
-  strategy: {}
+    matchLabels: { app: devsecops }
   template:
     metadata:
-      labels:
-        app: devsecops
+      labels: { app: devsecops }
     spec:
       containers:
-      - image: replace
-        name: devsecops-container
+        - name: devsecops-container
+          image: IMAGE_PLACEHOLDER  # <-- совпадает с sed
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080   # Spring Boot по умолчанию
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: devsecops
   name: devsecops-svc
+  labels: { app: devsecops }
 spec:
-  ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
-  selector:
-    app: devsecops
   type: NodePort
+  selector: { app: devsecops }
+  ports:
+    - port: 8080
+      targetPort: 8080

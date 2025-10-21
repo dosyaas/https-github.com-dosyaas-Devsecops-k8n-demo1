@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    jdk 'JDK11'   // имя из Manage Jenkins → Tools
+    jdk 'JDK11'   // имя инструмента из Manage Jenkins → Tools → JDK (ты уже там был)
     // maven 'Maven3' // добавь, если настроишь Maven в Tools
   }
 
@@ -31,7 +31,7 @@ pipeline {
       post {
         always {
           junit 'target/surefire-reports/*.xml'
-          // для твоей версии шага jacoco — только path
+          // у твоего джоб-плагина jacoco только один параметр: path
           jacoco path: 'target/jacoco.exec'
         }
       }
@@ -39,10 +39,11 @@ pipeline {
 
     stage('Mutation Tests - PIT') {
       steps {
-        // чтобы сборка не падала насмерть, пока доводишь тесты
+        // не убиваем всю сборку, пока доводим
         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
           retry(2) {
-            sh 'mvn -B -U -Dpit.verbose=true org.pitest:pitest-maven:mutationCoverage'
+            // включаем подробный лог именно для PIT
+            sh 'mvn -e -X -Dverbose=true org.pitest:pitest-maven:mutationCoverage'
           }
         }
       }

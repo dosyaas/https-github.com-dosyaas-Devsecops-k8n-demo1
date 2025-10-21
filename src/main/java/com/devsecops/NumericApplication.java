@@ -1,13 +1,20 @@
 package com.devsecops;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
-@SpringBootTest
-class NumericApplicationTests {
+@SpringBootApplication
+public class NumericApplication {
 
-    @Test
-    void contextLoads() {
-        // smoke test: приложение поднимается без ошибок
+    public static void main(String[] args) {
+        SpringApplication.run(NumericApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
     }
 }

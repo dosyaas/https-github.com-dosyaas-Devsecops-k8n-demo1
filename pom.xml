@@ -23,6 +23,7 @@
     <java.version>1.8</java.version>
   </properties>
 
+  <!-- ===== Dependencies (ТОЛЬКО здесь) ===== -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -41,16 +42,27 @@
     </dependency>
   </dependencies>
 
+  <!-- ===== Build (ОДИН раз) ===== -->
   <build>
     <plugins>
 
-      <!-- Spring Boot plugin -->
+      <!-- Spring Boot -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
 
-      <!-- JaCoCo: генерирует target/site/jacoco/jacoco.xml -->
+      <!-- Surefire: запуск JUnit 5 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+        </configuration>
+      </plugin>
+
+      <!-- JaCoCo -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -71,75 +83,46 @@
         </executions>
       </plugin>
 
-      <!-- (опционально) явный surefire -->
-      <!--
+      <!-- PIT Mutation Testing -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
-      </plugin>
-            -->
-      <dependencies>
-        <!-- JUnit 5 -->
-        <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <version>5.10.2</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <plugins>
-          <!-- Запуск JUnit5 -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.2.5</version>
-            <configuration>
-              <useModulePath>false</useModulePath>
-            </configuration>
-          </plugin>
-
-          <!-- PIT -->
-          <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.15.4</version>
+        <dependencies>
+          <dependency>
             <groupId>org.pitest</groupId>
-            <artifactId>pitest-maven</artifactId>
-            <version>1.15.4</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-junit5-plugin</artifactId>
-                <version>1.2.0</version>
-              </dependency>
-              <!-- Необязательно, но полезно для Spring Boot -->
-              <!--
-              <dependency>
-                <groupId>com.arcmutate</groupId>
-                <artifactId>arcmutate-spring-plugin</artifactId>
-                <version>1.0.0</version>
-              </dependency>
-              -->
-            </dependencies>
-            <configuration>
-              <testPlugin>junit5</testPlugin>
-              <targetClasses>
-                <param>com.devsecops.*</param>
-              </targetClasses>
-              <targetTests>
-                <param>com.devsecops.*Test</param>
-                <param>com.devsecops.*Tests</param>
-              </targetTests>
-              <mutationThreshold>70</mutationThreshold>
-              <outputFormats>
-                <outputFormat>XML</outputFormat>
-                <outputFormat>HTML</outputFormat>
-              </outputFormats>
-              <jvmArgs>
-                <param>-Xmx1024m</param>
-              </jvmArgs>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>1.2.0</version>
+          </dependency>
+          <!-- (опционально для Spring Boot) -->
+          <!--
+          <dependency>
+            <groupId>com.arcmutate</groupId>
+            <artifactId>arcmutate-spring-plugin</artifactId>
+            <version>1.0.0</version>
+          </dependency>
+          -->
+        </dependencies>
+        <configuration>
+          <testPlugin>junit5</testPlugin>
+          <targetClasses>
+            <param>com.devsecops.*</param>
+          </targetClasses>
+          <targetTests>
+            <param>com.devsecops.*Test</param>
+            <param>com.devsecops.*Tests</param>
+          </targetTests>
+          <mutationThreshold>70</mutationThreshold>
+          <outputFormats>
+            <outputFormat>XML</outputFormat>
+            <outputFormat>HTML</outputFormat>
+          </outputFormats>
+          <jvmArgs>
+            <param>-Xmx1024m</param>
+          </jvmArgs>
+        </configuration>
+      </plugin>
 
+    </plugins>
+  </build>
+</project>

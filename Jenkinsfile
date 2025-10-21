@@ -1,15 +1,14 @@
 pipeline {
   agent any
 
-  // Выбираем инструменты агента (важно для PIT: JDK 11)
+  // если в Tools есть JDK 11 с именем JDK11 – оставь этот блок
   tools {
-    jdk   'JDK11'   // укажи имя из Manage Jenkins → Tools
-    maven 'Maven3'  // аналогично
+    jdk 'JDK11'
+    // maven 'Maven3'  // убрано, т.к. не настроен
   }
 
   options {
     timestamps()
-    ansiColor('xterm')
   }
 
   environment {
@@ -18,7 +17,6 @@ pipeline {
   }
 
   stages {
-
     stage('Build Artifact - Maven') {
       steps {
         sh 'mvn -B -U clean package -DskipTests=true'
@@ -33,14 +31,16 @@ pipeline {
       post {
         always {
           junit 'target/surefire-reports/*.xml'
-          jacoco path: 'target/jacoco.exec', inclusionPattern: '**/*.exec'
+          // правильные параметры jacoco
+          jacoco execPattern: 'target/jacoco.exec',
+                 classPattern: 'target/classes',
+                 sourcePattern: 'src/main/java'
         }
       }
     }
 
     stage('Mutation Tests - PIT') {
       steps {
-        // чтобы пайплайн не падал насмерть во время доводки тестов:
         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
           retry(2) {
             sh 'mvn -B -U -Dpit.verbose=true org.pitest:pitest-maven:mutationCoverage'
@@ -49,9 +49,7 @@ pipeline {
       }
       post {
         always {
-          // публикуем XML в “Pit Mutation Report” плагин (если установлен)
           pitmutation mutationStatsFile: '**/target/pit-reports/**/mutations.xml'
-          // архивируем HTML-отчеты PIT
           archiveArtifacts artifacts: 'target/pit-reports/**', allowEmptyArchive: true
         }
       }
@@ -75,7 +73,6 @@ pipeline {
             set -e
             kubectl apply -f k8s_deployment_service.rendered.yaml
             APP_DEPLOY=$(kubectl get deploy -l app=devsecops -o name | head -n1)
-            echo "APP_DEPLOY=${APP_DEPLOY}"
             kubectl rollout status "$APP_DEPLOY" --timeout=180s
           '''
         }
@@ -86,10 +83,7 @@ pipeline {
             sh '''
               set -e
               APP_DEPLOY=$(kubectl get deploy -l app=devsecops -o name | head -n1 || true)
-              if [ -n "$APP_DEPLOY" ]; then
-                echo "Rollout failed. Trying to undo..."
-                kubectl rollout undo "$APP_DEPLOY" || true
-              fi
+              [ -n "$APP_DEPLOY" ] && kubectl rollout undo "$APP_DEPLOY" || true
             '''
           }
         }

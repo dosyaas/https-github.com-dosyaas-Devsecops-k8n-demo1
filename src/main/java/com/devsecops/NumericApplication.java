@@ -13,7 +13,6 @@ public class NumericApplication {
         SpringApplication.run(NumericApplication.class, args);
     }
 
-    // ✅ добавляем бин, чтобы Spring мог инжектить RestTemplate в контроллер
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();

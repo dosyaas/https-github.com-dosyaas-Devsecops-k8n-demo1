@@ -79,24 +79,33 @@
         <version>3.2.5</version>
       </plugin>
       -->
-        <!-- PITest Mutation Plugin -->
+                <!-- PITest Mutation Plugin -->
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
-          <version>1.15.0</version> <!-- возьмите актуальную 1.15.x -->
+          <version>1.15.4</version>
           <dependencies>
             <dependency>
               <groupId>org.pitest</groupId>
               <artifactId>pitest-junit5-plugin</artifactId>
-              <version>1.2.0</version> <!-- актуальная 1.x -->
+              <version>1.2.0</version>
             </dependency>
           </dependencies>
           <configuration>
+            <targetClasses>
+              <param>com.devsecops.*</param>
+            </targetClasses>
+            <targetTests>
+              <param>com.devsecops.*Test</param>
+            </targetTests>
             <mutationThreshold>70</mutationThreshold>
             <outputFormats>
               <outputFormat>XML</outputFormat>
               <outputFormat>HTML</outputFormat>
             </outputFormats>
+            <jvmArgs>
+              <param>-Xmx1024m</param>
+            </jvmArgs>
           </configuration>
         </plugin>
     </plugins>

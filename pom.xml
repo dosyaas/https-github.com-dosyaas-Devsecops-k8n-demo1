@@ -34,7 +34,7 @@
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
 
-    <!-- Тестовый стартер Boot (JUnit Platform 1.5.x) + отключаем Vintage -->
+    <!-- Тесты на JUnit 5, Vintage отключён -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -56,7 +56,7 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
 
-      <!-- Surefire (JUnit 5) -->
+      <!-- JUnit 5 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -87,14 +87,13 @@
         </executions>
       </plugin>
 
-      <!-- PIT Mutation Testing (без явного junit5-plugin) -->
+      <!-- PIT (без внешнего junit5-plugin) -->
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
         <version>1.15.4</version>
         <configuration>
           <testPlugin>junit5</testPlugin>
-
           <targetClasses>
             <param>com.devsecops.*</param>
           </targetClasses>
@@ -102,8 +101,6 @@
             <param>com.devsecops.*Test</param>
             <param>com.devsecops.*Tests</param>
           </targetTests>
-
-          <!-- на время стабилизации, чтобы пайплайн не падал -->
           <mutationThreshold>0</mutationThreshold>
           <failWhenNoMutations>false</failWhenNoMutations>
           <threads>1</threads>

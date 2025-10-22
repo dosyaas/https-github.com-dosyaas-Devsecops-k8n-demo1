@@ -1,120 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.1.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
 
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.1.RELEASE</version>
-    <relativePath/>
-  </parent>
+	<groupId>com.devsecops</groupId>
+	<artifactId>numeric</artifactId>
+	<version>0.0.1</version>
+	<name>numeric</name>
+	<description>Demo for DevSecOps</description>
 
-  <groupId>com.devsecops</groupId>
-  <artifactId>numeric</artifactId>
-  <version>0.0.1</version>
-  <name>numeric</name>
-  <description>Demo for DevSecOps</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
-  </properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-    <!-- Тесты на JUnit 5, Vintage отключён -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.junit.vintage</groupId>
-          <artifactId>junit-vintage-engine</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-  </dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+                			  <!--                   Jacoco Plugin                   -->
+                <plugin>
+                   <groupId>org.jacoco</groupId>
+                   <artifactId>jacoco-maven-plugin</artifactId>
+                   <version>0.8.5</version>
+                   <executions>
+                      <execution>
+                         <goals>
+                            <goal>prepare-agent</goal>
+                         </goals>
+                      </execution>
+                      <execution>
+                         <id>report</id>
+                         <phase>test</phase>
+                         <goals>
+                            <goal>report</goal>
+                         </goals>
+                      </execution>
+                   </executions>
+                </plugin>
+                <!--                   PITest Mutation Plugin                   -->
+									<plugin>
+			<groupId>org.pitest</groupId>
+			<artifactId>pitest-maven</artifactId>
+			<version>1.5.0</version>
+			<dependencies>
+				<dependency>
+					<groupId>org.pitest</groupId>
+					<artifactId>pitest-junit5-plugin</artifactId>
+					<version>0.12</version>
+				</dependency>
+			</dependencies>
+			<configuration>
+				<mutationThreshold>75</mutationThreshold>
+				<outputFormats>
+					<outputFormat>XML</outputFormat>
+					<outputFormat>HTML</outputFormat>
+				</outputFormats>
+			</configuration>
+			</plugin>	
+		</plugins>
+	</build>
 
-  <build>
-    <plugins>
-
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-
-      <!-- JUnit 5 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
-        <configuration>
-          <useModulePath>false</useModulePath>
-        </configuration>
-      </plugin>
-
-      <!-- JaCoCo -->
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- PIT (без внешнего junit5-plugin) -->
-      <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <version>1.15.4</version>
-        <configuration>
-          <testPlugin>junit5</testPlugin>
-          <targetClasses>
-            <param>com.devsecops.*</param>
-          </targetClasses>
-          <targetTests>
-            <param>com.devsecops.*Test</param>
-            <param>com.devsecops.*Tests</param>
-          </targetTests>
-          <mutationThreshold>0</mutationThreshold>
-          <failWhenNoMutations>false</failWhenNoMutations>
-          <threads>1</threads>
-          <outputFormats>
-            <outputFormat>XML</outputFormat>
-            <outputFormat>HTML</outputFormat>
-          </outputFormats>
-          <jvmArgs>
-            <param>-Xmx1024m</param>
-          </jvmArgs>
-          <verbose>true</verbose>
-        </configuration>
-      </plugin>
-
-    </plugins>
-  </build>
 </project>
